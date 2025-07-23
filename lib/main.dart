@@ -1,4 +1,3 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,72 +10,74 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        ),
-        home: MyHomePage(),
-      ),
-    );
-  }
-}
-
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-
-  void getNext() {
-    current = WordPair.random();
-    notifyListeners();
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    return Scaffold(
-      body: Column(
-        children: [
-          Text('A random AWESOME idea:'),
-          BigCard(pair: pair),
-          ElevatedButton(
-            onPressed: () {
-              appState.getNext();
-            },
-            child: Text('Next'),
+    return MaterialApp(
+      theme: ThemeData(
+        appBarTheme: AppBarTheme(
+          titleTextStyle: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: Colors.blueGrey[900],
+            fontFamily: 'Orbitron',
           ),
-        ],
+        ),
+      ),
+
+      title: 'Todoapp',
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('tasks'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                //go to settings page
+              },
+            ),
+          ],
+        ),
+        body:
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TaskInput(),
+          ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+              //
+            },
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }
 }
 
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
+class TaskInput extends StatefulWidget {
+  const TaskInput({super.key});
 
-  final WordPair pair;
+  @override
+  State<TaskInput> createState() => _TaskInputState();
+}
+
+class _TaskInputState extends State<TaskInput> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Text(pair.asLowerCase, style: style),
+    return TextField(
+      controller: _controller,
+      decoration: const InputDecoration(
+        hintText: "enter your task here",
+        border: OutlineInputBorder(),
       ),
+      onSubmitted: (value) {
+        print("user entered $value");
+      },
     );
   }
 }

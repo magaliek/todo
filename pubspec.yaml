@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^6.1.5
+  flutter_colorpicker: ^1.0.3
+  image_picker: ^1.1.2
+  google_fonts: ^6.2.0
 
 dev_dependencies:
   flutter_test:
@@ -18,10 +21,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  fonts:
-    - family: Orbitron
-      fonts:
-        - asset: fonts/Orbitron/Orbitron-VariableFont_wght.ttf
-    - family: Antonio-thin
-      fonts:
-        - asset: fonts/Antonio/static/Antonio-Thin.ttf

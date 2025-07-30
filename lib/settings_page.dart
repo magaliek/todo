@@ -104,6 +104,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     } else if (which == "t2") {
                       context.read<AppSettings>().
                       setTaskTextColor(currentColor);
+                    } else if (which == "g1") {
+                      context.read<AppSettings>().
+                      setGradientBegin(currentColor);
+                    } else if (which == "g2") {
+                      context.read<AppSettings>().
+                      setGradientEnd(currentColor);
                     }
                     Navigator.pop(context);
                   },
@@ -280,10 +286,14 @@ class _SettingsPageState extends State<SettingsPage> {
                             return StatefulBuilder(
                               builder: (context, setInnerState) {
                                 return AlertDialog(
-                                  title: Center(child: Text("Slide to size")),
+                                  backgroundColor: Colors.grey[200],
+                                  title: Center(child: Text(
+                                    "Slide to size",
+                                    style: TextStyle(color: Colors.black),
+                                  )),
                                   content: ConstrainedBox(
                                       constraints: const BoxConstraints(
-                                        maxHeight: 200,
+                                        maxHeight: 50,
                                   ),
                                   child: Row(
                                     children: [
@@ -293,6 +303,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                         max: 34,
                                         divisions: 17,
                                         label: sliderValue.round().toString(),
+                                        activeColor: Colors.grey[900],
+                                        thumbColor: Colors.black,
                                         onChanged: (value) {
                                           setInnerState(() {
                                           sliderValue = value;
@@ -304,7 +316,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                             settings.setTaskTextSize(sliderValue);
                                             Navigator.pop(context);
                                           },
-                                          icon: Icon(Icons.check),
+                                          icon: Icon(Icons.check, color: Colors.black,),
                                       )
                                     ],
                                   ),
@@ -327,6 +339,25 @@ class _SettingsPageState extends State<SettingsPage> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12.0),
                         child: Text("Set tasks' text color"),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        _pickColor("g1");
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        child: Text("Set trash gradient start color"),
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: () {
+                        _pickColor("g2");
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        child: Text("Set trash gradient end color"),
                       ),
                     ),
                   ],

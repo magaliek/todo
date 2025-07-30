@@ -116,17 +116,21 @@ class _HomePageState extends State<HomePage> {
                         _tasks.remove(_tasks[i]);
                       });
                     },
-                    background: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.blueGrey, Colors.black],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Icon(Icons.delete_outline, color: Colors.white),
+                    background: Consumer<AppSettings>(
+                      builder: (context, settings, child) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [settings.gradientBegin, settings.gradientEnd],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Icon(Icons.delete_outline, color: settings.foregroundColor),
+                        );
+                      }
                     ),
 
                     child: ListTile(

@@ -8,6 +8,8 @@ class AppSettings extends ChangeNotifier {
   Color taskTextColor = Colors.black;
   String globalFont = "Orbitron";
   Color? foregroundColor = Colors.blueGrey[900];
+  Color gradientBegin = Colors.blueGrey;
+  Color gradientEnd = Colors.black;
 
   void setBackgroundColor(Color color) {
     backgroundColor = color;
@@ -43,6 +45,16 @@ class AppSettings extends ChangeNotifier {
 
   void setForegroundColor(Color color) {
     foregroundColor = color;
+    notifyListeners();
+  }
+
+  void setGradientBegin(Color color) {
+    gradientBegin = color;
+    notifyListeners();
+  }
+
+  void setGradientEnd(Color color) {
+    gradientEnd = color;
     notifyListeners();
   }
 }

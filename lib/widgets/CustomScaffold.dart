@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'app_settings.dart';
+import '../models/app_settings.dart';
 import 'dart:io';
 
 class CustomScaffold extends StatelessWidget {

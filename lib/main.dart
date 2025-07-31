@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'homepage.dart';
-import 'settings_page.dart';
-import 'app_settings.dart';
+import 'pages/homepage.dart';
+import 'pages/settings_page.dart';
+import 'models/app_settings.dart';
 
 void main() {
   runApp(

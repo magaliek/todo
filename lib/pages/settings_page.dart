@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'app_settings.dart';
+import '../models/app_settings.dart';
 import 'package:provider/provider.dart';
-import 'CustomScaffold.dart';
+import '../widgets/CustomScaffold.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 

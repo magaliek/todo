@@ -45,9 +45,7 @@ class CustomScaffold extends StatelessWidget {
           extendBodyBehindAppBar: true,
           appBar: appBar,
           body: SafeArea(
-              child: SingleChildScrollView(
-                  child: body,
-              )
+              child: body,
           ),
           floatingActionButton: floatingActionButton,
         ),

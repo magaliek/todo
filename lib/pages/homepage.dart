@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<Task> _tasks = [];
+  List<Task> _tasks = [];
 
   @override
   Widget build(BuildContext context) {
@@ -50,70 +50,89 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body:
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Consumer<AppSettings>(
-          builder: (context, settings, child) {
-            return Column(
-              children: [
-                for (var i = 0; i < _tasks.length; i++)
-                  Dismissible(
-                    key: UniqueKey(),
-                    direction: DismissDirection.endToStart,
-                    onDismissed: (direction) {
-                      setState(() {
-                        _tasks.remove(_tasks[i]);
-                      });
-                    },
-                    background: Consumer<AppSettings>(
-                      builder: (context, settings, child) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [settings.gradientBegin, settings.gradientEnd],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Icon(Icons.delete_outline, color: settings.foregroundColor),
-                        );
+      Consumer<AppSettings>(
+        builder: (context, settings, child) {
+          return ListView.builder(
+            itemCount: _tasks.length,
+            itemBuilder: (context, i) {
+              return TaskTile(
+                task: _tasks[i],
+                toggleE: () {
+                  setState(() {
+                    _tasks[i].expanded = !_tasks[i].expanded;
+                  });
+                },
+                //tasks
+                toggle: () {
+                  setState(() {
+                    _tasks[i].isDone = !_tasks[i].isDone;
+                    if (_tasks[i].isDone) {
+                      for (Task sub in _tasks[i].subtasks) {
+                        sub.isDone = true;
                       }
-                    ),
-
-                    child: TaskTile(
-                      task: _tasks[i],
-
-                      toggle: () {
-                        setState(() {
-                          _tasks[i].isDone = !_tasks[i].isDone;
-                        });
-                      },
-                      editTask:  () async {
-                        final taskString = await editTask(context, _tasks[i]);
-                        setState(() {
-                          if (taskString != null) {
-                            _tasks[i].task = taskString;
-                          }
-                        });
-                      },
-                    ),
-                  ),
-              ],
-            );
-          }
-        ),
+                    } else if (!_tasks[i].isDone) {
+                      for (Task sub in _tasks[i].subtasks) {
+                        sub.isDone = false;
+                      }
+                    }
+                  });
+                },
+                editTask: () async {
+                  final taskString = await editTask(context, _tasks[i]);
+                  setState(() {
+                    if (taskString != null) {
+                      _tasks[i].task = taskString;
+                    }
+                  });
+                },
+                removeTask: () {
+                  setState(() => _tasks.removeAt(i));
+                },
+                //subs
+                removeSub: (index) {
+                  setState(() {
+                    _tasks[i].subtasks.removeAt(index);
+                    _tasks[i].isDone = _tasks[i].areAllSubtasksDone;
+                  });
+                },
+                editSub: (index) async {
+                  final subString = await editTask(context, _tasks[i].subtasks[index]);
+                  setState(() {
+                    if (subString != null) {
+                      _tasks[i].subtasks[index].task = subString;
+                    }
+                  });
+                },
+                updateSubtask: (isDone, index) {
+                  setState(() {
+                    _tasks[i].subtasks[index].isDone = isDone;
+                    _tasks[i].isDone = _tasks[i].areAllSubtasksDone;
+                  });
+                },
+                addSubtask: () async {
+                  final taskString = await addTask(context);
+                  setState(() {
+                    if (taskString != null) {
+                      _tasks[i].isDone = false;
+                      _tasks[i].subtasks.add(Task(taskString));
+                    }
+                  });
+                },
+              );
+            },
+          );
+        }
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final taskString = await addTask(context);
-          setState(() {
-            if (taskString != null) {
-              _tasks.add(Task(taskString));
+            final taskString = await addTask(context);
+            if (!mounted) return;
+            if (taskString != null && taskString.trim().isNotEmpty) {
+              setState(() {
+                _tasks.add(Task(taskString));
+              });
             }
-          });
-        },
+          },
         child: const Icon(Icons.add),
       ),
     );

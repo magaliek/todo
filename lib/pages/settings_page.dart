@@ -77,7 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
       setState(() => pickerColor = color);
     }
 
-    void _pickColor(String which) {
+    void pickColor(String which) {
       showDialog(
         context: context,
         builder: (context) {
@@ -148,7 +148,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   InkWell(
                     onTap: () {
-                      _pickColor("b");
+                      pickColor("b");
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -216,7 +216,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   InkWell(
                     onTap: () {
-                      _pickColor("t");
+                      pickColor("t");
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -334,7 +334,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     InkWell(
                       onTap: () {
-                        _pickColor("t2");
+                        pickColor("t2");
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -343,7 +343,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     InkWell(
                       onTap: () {
-                        _pickColor("g1");
+                        pickColor("g1");
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -353,7 +353,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
                     InkWell(
                       onTap: () {
-                        _pickColor("g2");
+                        pickColor("g2");
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12.0),

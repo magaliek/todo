@@ -73,12 +73,13 @@ class TaskTile extends StatelessWidget {
                   ),
                   onPressed: toggle
                 ),
-                Icon(
-                  task.expanded
-                      ? Icons.keyboard_arrow_down_rounded
-                      : Icons.keyboard_arrow_right_rounded,
-                  color: settings.foregroundColor,
-                ),
+                if (task.subtasks.isNotEmpty)
+                  Icon(
+                    task.expanded
+                        ? Icons.keyboard_arrow_down_rounded
+                        : Icons.keyboard_arrow_right_rounded,
+                    color: settings.foregroundColor,
+                  ),
               ],
             ),
 

@@ -103,12 +103,12 @@ class TaskTile extends StatelessWidget {
                 IconButton(
                   icon: Icon(Icons.edit_outlined),
                   onPressed: editTask,
-                  color: settings.taskTextColor,
+                  color: settings.foregroundColor,
                 ),
                 IconButton(
                   onPressed: addSubtask,
                   icon: Icon(Icons.add),
-                  color: settings.taskTextColor,
+                  color: settings.foregroundColor,
                 ),
               ],
             ),
@@ -162,7 +162,7 @@ class TaskTile extends StatelessWidget {
                           IconButton(
                             icon: Icon(Icons.edit_outlined),
                             onPressed: () => editSub(i),
-                            color: settings.taskTextColor,
+                            color: settings.foregroundColor,
                           ),
                         ],
                       ),

@@ -16,11 +16,73 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late double sliderValue;
+
+  Color _pickerColor = Colors.white;
+  Color _currentColor = Colors.white;
+
+  void _changeColor(Color color) {
+    setState(() => _pickerColor = color);
+  }
+
+  void _pickColor(String which) {
+    final s = context.read<AppSettings>();
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            backgroundColor: s.backgroundColor,
+
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ColorPicker(
+                  pickerColor: _pickerColor,
+                  onColorChanged: _changeColor,
+
+                  colorPickerWidth: 260,
+                  pickerAreaHeightPercent: 0.55,
+                  pickerAreaBorderRadius: const BorderRadius.all(Radius.circular(8)),
+
+                  paletteType: PaletteType.hueWheel,
+                  enableAlpha: true,
+                  displayThumbColor: true,
+                  portraitOnly: true,
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: FilledButton(
+                      onPressed: () {
+                        setState(() {
+                          _currentColor = _pickerColor;
+                        });
+                        switch (which) {
+                          case "b":  s.setBackgroundColor(_currentColor); break;
+                          case "t":  s.setForegroundColor(_currentColor); break;
+                          case "t2": s.setTaskTextColor(_currentColor); break;
+                          case "g1": s.setGradientBegin(_currentColor); break;
+                          case "g2": s.setGradientEnd(_currentColor); break;
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Select"),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     sliderValue = context.read<AppSettings>().taskTextSize;
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -70,57 +132,6 @@ class _SettingsPageState extends State<SettingsPage> {
       "Sacramento",
     ];
 
-    Color pickerColor = Colors.white;
-    Color currentColor = Colors.white;
-
-    void changeColor(Color color) {
-      setState(() => pickerColor = color);
-    }
-
-    void pickColor(String which) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("Pick a color"),
-            content: SingleChildScrollView(
-              child: ColorPicker(
-                  pickerColor: pickerColor,
-                  onColorChanged: changeColor
-              ),
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    setState(() {
-                      currentColor = pickerColor;
-                    });
-                    if (which == "b") {
-                      context.read<AppSettings>().
-                      setBackgroundColor(currentColor);
-                    } else if (which == "t") {
-                      context.read<AppSettings>().
-                      setForegroundColor(currentColor);
-                    } else if (which == "t2") {
-                      context.read<AppSettings>().
-                      setTaskTextColor(currentColor);
-                    } else if (which == "g1") {
-                      context.read<AppSettings>().
-                      setGradientBegin(currentColor);
-                    } else if (which == "g2") {
-                      context.read<AppSettings>().
-                      setGradientEnd(currentColor);
-                    }
-                    Navigator.pop(context);
-                  },
-                  child: Text("Select"),
-              ),
-            ],
-          );
-        }
-      );
-    }
-
     return CustomScaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -148,7 +159,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   InkWell(
                     onTap: () {
-                      pickColor("b");
+                      _pickColor("b");
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -216,7 +227,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   InkWell(
                     onTap: () {
-                      pickColor("t");
+                      _pickColor("t");
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -334,7 +345,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     InkWell(
                       onTap: () {
-                        pickColor("t2");
+                        _pickColor("t2");
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -343,7 +354,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     InkWell(
                       onTap: () {
-                        pickColor("g1");
+                        _pickColor("g1");
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -353,7 +364,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
                     InkWell(
                       onTap: () {
-                        pickColor("g2");
+                        _pickColor("g2");
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12.0),

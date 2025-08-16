@@ -4,18 +4,26 @@ import 'package:provider/provider.dart';
 import 'pages/homepage.dart';
 import 'pages/settings_page.dart';
 import 'models/app_settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final prefs = await SharedPreferences.getInstance();
+  final isFirstRun = prefs.getBool('has_run_before') != true;
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppSettings(),
-      child: MyApp(),
+      child: MyApp(isFirstRun: isFirstRun, prefs: prefs),
     )
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isFirstRun;
+  final SharedPreferences prefs;
+  const MyApp({super.key, required this.isFirstRun, required this.prefs});
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +58,7 @@ class MyApp extends StatelessWidget {
           title: 'Todoapp',
           initialRoute: '/',
           routes: {
-            '/': (context) => const HomePage(),
+            '/': (context) => HomePage(isFirstRun: isFirstRun, prefs: prefs),
             '/settings_page': (context) => const SettingsPage(),
           },
         );

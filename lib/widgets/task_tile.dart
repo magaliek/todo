@@ -11,6 +11,8 @@ class TaskTile extends StatelessWidget {
   final VoidCallback editTask;
   final VoidCallback addSubtask;
   final VoidCallback removeTask;
+  final VoidCallback launchTimer; //?
+  final VoidCallback setDeadline; //?
   final void Function(int index) removeSub;
   final void Function(int index) editSub;
   final void Function(bool isDone, int index) updateSubtask;
@@ -25,6 +27,8 @@ class TaskTile extends StatelessWidget {
     required this.removeSub,
     required this.addSubtask,
     required this.removeTask,
+    required this.launchTimer, //?
+    required this.setDeadline, //?
     required this.updateSubtask,
 });
 
@@ -61,6 +65,7 @@ class TaskTile extends StatelessWidget {
             tilePadding: EdgeInsets.symmetric(horizontal: 0),
             initiallyExpanded: task.expanded,
             onExpansionChanged: (_) => toggleE(),
+            maintainState: true,
             leading: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -73,7 +78,7 @@ class TaskTile extends StatelessWidget {
                   ),
                   onPressed: toggle
                 ),
-                if (task.subtasks.isNotEmpty)
+                if (task.subtasks.isNotEmpty || task.timer!=null)
                   Icon(
                     task.expanded
                         ? Icons.keyboard_arrow_down_rounded
@@ -97,23 +102,61 @@ class TaskTile extends StatelessWidget {
               ),
             ),
 
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit_outlined),
-                  onPressed: editTask,
-                  color: settings.foregroundColor,
+            trailing: PopupMenuButton<int>(
+              onSelected: (value) {
+                if (value == 0) {
+
+                } else if (value == 1) {
+
+                } else if (value == 2) {
+
+                } else if (value == 3) {
+
+                }
+              },
+              itemBuilder: (context) => [
+
+                PopupMenuItem(
+                  value: 0,
+                  child: TextButton.icon(
+                    icon: Icon(Icons.edit_outlined, color: settings.foregroundColor),
+                    onPressed: editTask,
+                    label: Text("Edit task"),
+                  ),
                 ),
-                IconButton(
-                  onPressed: addSubtask,
-                  icon: Icon(Icons.add),
-                  color: settings.foregroundColor,
+
+                PopupMenuItem(
+                  value: 1,
+                  child: TextButton.icon(
+                    onPressed: addSubtask,
+                    icon: Icon(Icons.add, color: settings.foregroundColor),
+                    label: Text("Add subtask"),
+                  ),
+                ),
+
+                PopupMenuItem(
+                  value: 2,
+                  child: TextButton.icon(
+                    onPressed: launchTimer,
+                    icon: Icon(Icons.timer_rounded, color: settings.foregroundColor),
+                    label: Text("Add timer"),
+                  ),
+                ),
+
+                PopupMenuItem(
+                  value: 3,
+                  child: TextButton.icon(
+                    onPressed: setDeadline,
+                    icon: Icon(Icons.calendar_month_rounded, color: settings.foregroundColor),
+                    label: Text("Set deadline"),
+                  ),
                 ),
               ],
             ),
 
             children: [
+              if (task.timer != null) task.timer!,
+//come back here
               Column(
                 children: List.generate(task.subtasks.length, (i) {
                   final sub = task.subtasks[i];

@@ -7,10 +7,14 @@ import '/models/task.dart';
 import '/dialogs/add_task_dialog.dart';
 import '/dialogs/edit_task_dialog.dart';
 import '/widgets/task_tile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo/widgets/timer.dart';
 
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final bool isFirstRun;
+  final SharedPreferences prefs;
+  const HomePage({super.key, required this.isFirstRun, required this.prefs});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -18,6 +22,22 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Task> _tasks = [];
+  bool _tipInserted = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _maybeInsertTip();
+  }
+
+  void _maybeInsertTip() {
+    if (!_tipInserted && widget.isFirstRun) {
+      _tasks.add(Task("💡 Tip: Swipe left to delete"));
+      widget.prefs.setBool('has_run_before', true);
+      _tipInserted = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +138,19 @@ class _HomePageState extends State<HomePage> {
                     }
                   });
                 },
+                //time
+                launchTimer: () {
+                  setState(() {
+                    _tasks[i].timer = TaskTimer(
+                      onDelete: () {
+                        setState(() {
+                          _tasks[i].timer = null;
+                        });
+                      }
+                    );
+                  });
+                },
+                setDeadline: () {},
               );
             },
           );

@@ -67,10 +67,9 @@ class _TaskTimerState extends State<TaskTimer> {
     final h = d.inHours.remainder(24).toString().padLeft(2, '0');
     final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
     final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    final ms = d.inMilliseconds.remainder(1000).toString().padLeft(4, '0');
     return d.inDays.remainder(365)>0
-        ? '$days:$h:$m:$s:$ms'
-        : '$h:$m:$s:$ms';
+        ? '$days:$h:$m:$s'
+        : '$h:$m:$s';
   }
 
   @override
@@ -110,11 +109,13 @@ class _TaskTimerState extends State<TaskTimer> {
           IconButton(
             icon: Icon(isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded),
             onPressed: isRunning ? pause : start,
+            color: settings.foregroundColor,
           ),
 
           IconButton(
             icon: Icon(Icons.stop_rounded),
             onPressed: stop,
+            color: settings.foregroundColor,
           ),
         ],
       ),

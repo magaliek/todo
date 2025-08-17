@@ -59,11 +59,11 @@ class _SettingsPageState extends State<SettingsPage> {
                           _currentColor = _pickerColor;
                         });
                         switch (which) {
-                          case "b":  s.setBackgroundColor(_currentColor); break;
-                          case "t":  s.setForegroundColor(_currentColor); break;
-                          case "t2": s.setTaskTextColor(_currentColor); break;
-                          case "g1": s.setGradientBegin(_currentColor); break;
-                          case "g2": s.setGradientEnd(_currentColor); break;
+                          case "b":  s.setBackgroundColor(_currentColor);
+                          case "t":  s.setForegroundColor(_currentColor);
+                          case "t2": s.setTaskTextColor(_currentColor);
+                          case "g1": s.setGradientBegin(_currentColor);
+                          case "g2": s.setGradientEnd(_currentColor);
                         }
                         Navigator.pop(context);
                       },

@@ -150,7 +150,41 @@ class _HomePageState extends State<HomePage> {
                     );
                   });
                 },
-                setDeadline: () {},
+                //lastly
+                deleteDeadline: () {
+                  setState(() {
+                    _tasks[i].deadline = null;
+                    _tasks[i].hasTime = false;
+                  });
+                },
+
+                setDeadline: () async {
+                  final date = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(1992),
+                    lastDate: DateTime(2125),
+                  );
+                  if (date == null) return;
+                  final time = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.now(),
+                    cancelText: "Don't set time",
+                  );
+                  if (!context.mounted) return;
+
+                  if (time == null) {
+                    setState(() {
+                      _tasks[i].deadline = DateTime(date.year, date.month, date.day);
+                      _tasks[i].hasTime = false;
+                    });
+                  } else {
+                    setState(() {
+                      _tasks[i].deadline = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                      _tasks[i].hasTime = true;
+                    });
+                  }
+                },
               );
             },
           );

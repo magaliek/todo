@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '/models/task.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class TaskTile extends StatelessWidget {
   final Task task;
@@ -13,6 +14,7 @@ class TaskTile extends StatelessWidget {
   final VoidCallback removeTask;
   final VoidCallback launchTimer; //?
   final VoidCallback setDeadline; //?
+  final VoidCallback deleteDeadline;
   final void Function(int index) removeSub;
   final void Function(int index) editSub;
   final void Function(bool isDone, int index) updateSubtask;
@@ -27,8 +29,9 @@ class TaskTile extends StatelessWidget {
     required this.removeSub,
     required this.addSubtask,
     required this.removeTask,
-    required this.launchTimer, //?
-    required this.setDeadline, //?
+    required this.launchTimer,
+    required this.setDeadline,
+    required this.deleteDeadline,
     required this.updateSubtask,
 });
 
@@ -66,6 +69,12 @@ class TaskTile extends StatelessWidget {
             initiallyExpanded: task.expanded,
             onExpansionChanged: (_) => toggleE(),
             maintainState: true,
+            subtitle: (task.deadline != null)
+                        ? Text(
+                          task.hasTime
+                              ? DateFormat('dd.MM.yyyy HH.mm').format(task.deadline!)
+                              : DateFormat('dd.MM.yyyy').format(task.deadline!),
+                          style: TextStyle(fontSize: 10, color: settings.foregroundColor),) : null,
             leading: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -102,54 +111,64 @@ class TaskTile extends StatelessWidget {
               ),
             ),
 
-            trailing: PopupMenuButton<int>(
-              onSelected: (value) {
-                if (value == 0) {
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PopupMenuButton<int>(
+                  icon: Icon(Icons.more_vert, color: settings.foregroundColor,),
+                  onSelected: (value) {
+                    if (value == 0) {}
+                    else if (value == 1) {}
+                    else if (value == 2) {}
+                    else if (value == 3) {}
+                    else if (value == 4) {}
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 0,
+                      child: TextButton.icon(
+                        icon: Icon(Icons.edit_outlined, color: settings.foregroundColor),
+                        onPressed: editTask,
+                        label: Text("Edit task"),
+                      ),
+                    ),
 
-                } else if (value == 1) {
+                    PopupMenuItem(
+                      value: 1,
+                      child: TextButton.icon(
+                        onPressed: addSubtask,
+                        icon: Icon(Icons.add, color: settings.foregroundColor),
+                        label: Text("Add subtask"),
+                      ),
+                    ),
 
-                } else if (value == 2) {
+                    PopupMenuItem(
+                      value: 2,
+                      child: TextButton.icon(
+                        onPressed: launchTimer,
+                        icon: Icon(Icons.timer_rounded, color: settings.foregroundColor),
+                        label: Text("Add timer"),
+                      ),
+                    ),
 
-                } else if (value == 3) {
+                    PopupMenuItem(
+                      value: 3,
+                      child: TextButton.icon(
+                        onPressed: setDeadline,
+                        icon: Icon(Icons.calendar_month_rounded, color: settings.foregroundColor),
+                        label: Text("Set deadline"),
+                      ),
+                    ),
 
-                }
-              },
-              itemBuilder: (context) => [
-
-                PopupMenuItem(
-                  value: 0,
-                  child: TextButton.icon(
-                    icon: Icon(Icons.edit_outlined, color: settings.foregroundColor),
-                    onPressed: editTask,
-                    label: Text("Edit task"),
-                  ),
-                ),
-
-                PopupMenuItem(
-                  value: 1,
-                  child: TextButton.icon(
-                    onPressed: addSubtask,
-                    icon: Icon(Icons.add, color: settings.foregroundColor),
-                    label: Text("Add subtask"),
-                  ),
-                ),
-
-                PopupMenuItem(
-                  value: 2,
-                  child: TextButton.icon(
-                    onPressed: launchTimer,
-                    icon: Icon(Icons.timer_rounded, color: settings.foregroundColor),
-                    label: Text("Add timer"),
-                  ),
-                ),
-
-                PopupMenuItem(
-                  value: 3,
-                  child: TextButton.icon(
-                    onPressed: setDeadline,
-                    icon: Icon(Icons.calendar_month_rounded, color: settings.foregroundColor),
-                    label: Text("Set deadline"),
-                  ),
+                    PopupMenuItem(
+                      value: 4,
+                      child: TextButton.icon(
+                        onPressed: deleteDeadline,
+                        icon: Icon(Icons.auto_delete_rounded, color: settings.foregroundColor),
+                        label: Text("Delete deadline"),
+                      ),
+                    )
+                  ],
                 ),
               ],
             ),

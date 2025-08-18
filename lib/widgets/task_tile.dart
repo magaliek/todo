@@ -4,6 +4,7 @@ import '../models/app_settings.dart';
 import '/models/task.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '/widgets/timer.dart';
 
 class TaskTile extends StatelessWidget {
   final Task task;
@@ -87,7 +88,7 @@ class TaskTile extends StatelessWidget {
                   ),
                   onPressed: toggle
                 ),
-                if (task.subtasks.isNotEmpty || task.timer!=null)
+                if (task.subtasks.isNotEmpty || task.timerState!=null)
                   Icon(
                     task.expanded
                         ? Icons.keyboard_arrow_down_rounded
@@ -174,7 +175,16 @@ class TaskTile extends StatelessWidget {
             ),
 
             children: [
-              if (task.timer != null) task.timer!,
+              if (task.timerState != null)
+                TaskTimer(
+                  task: task,
+                  onDelete: () {
+                    task.startedAt = null;
+                    task.elapsed = 0;
+                    task.timerState = null;
+                    task.save();
+                  },
+                ),
 //come back here
               Column(
                 children: List.generate(task.subtasks.length, (i) {

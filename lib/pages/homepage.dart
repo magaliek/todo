@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:todo/enum/TaskState.dart';
 import 'package:todo/models/app_settings.dart';
 import 'package:provider/provider.dart';
 import 'package:todo/pages/settings_page.dart';
@@ -21,8 +24,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Task> _tasks = [];
   bool _tipInserted = false;
+  final box = Hive.box<Task>('taskBox');
 
   @override
   void initState() {
@@ -33,7 +36,7 @@ class _HomePageState extends State<HomePage> {
 
   void _maybeInsertTip() {
     if (!_tipInserted && widget.isFirstRun) {
-      _tasks.add(Task("💡 Tip: Swipe left to delete"));
+      box.add(Task("💡 Tip: Swipe left to delete"));
       widget.prefs.setBool('has_run_before', true);
       _tipInserted = true;
     }
@@ -72,121 +75,126 @@ class _HomePageState extends State<HomePage> {
       body:
       Consumer<AppSettings>(
         builder: (context, settings, child) {
-          return ListView.builder(
-            itemCount: _tasks.length,
-            itemBuilder: (context, i) {
-              return TaskTile(
-                task: _tasks[i],
-                toggleE: () {
-                  setState(() {
-                    _tasks[i].expanded = !_tasks[i].expanded;
-                  });
-                },
-                //tasks
-                toggle: () {
-                  setState(() {
-                    _tasks[i].isDone = !_tasks[i].isDone;
-                    if (_tasks[i].isDone) {
-                      for (Task sub in _tasks[i].subtasks) {
-                        sub.isDone = true;
+          return ValueListenableBuilder(
+            valueListenable: box.listenable(),
+            builder: (_, Box<Task> b, __) {
+              final tasks = b.values.toList(growable: false);
+              return ListView.builder(
+                itemCount: box.length,
+                itemBuilder: (context, i) {
+                  return TaskTile(
+                    task: box.getAt(i)!,
+                    toggleE: () {
+                      setState(() {
+                        box.getAt(i)!.expanded = !box.getAt(i)!.expanded;
+                      });
+                    },
+                    //tasks
+                    toggle: () {
+                      setState(() {
+                        box.getAt(i)!.isDone = !box.getAt(i)!.isDone;
+                        if (box.getAt(i)!.isDone) {
+                          for (Task sub in box.getAt(i)!.subtasks) {
+                            sub.isDone = true;
+                          }
+                        } else if (!box.getAt(i)!.isDone) {
+                          for (Task sub in box.getAt(i)!.subtasks) {
+                            sub.isDone = false;
+                          }
+                        }
+                      });
+                    },
+                    editTask: () async {
+                      final taskString = await editTask(context, box.getAt(i)!);
+                      setState(() {
+                        if (taskString != null) {
+                          box.getAt(i)!.task = taskString;
+                        }
+                      });
+                    },
+                    removeTask: () {
+                      setState(() => box.deleteAt(i));
+                    },
+                    //subs
+                    removeSub: (index) {
+                      setState(() {
+                        box.getAt(i)!.subtasks.removeAt(index);
+                        box.getAt(i)!.isDone = box.getAt(i)!.areAllSubtasksDone;
+                      });
+                    },
+                    editSub: (index) async {
+                      final subString = await editTask(context, box.getAt(i)!.subtasks[index]);
+                      setState(() {
+                        if (subString != null) {
+                          box.getAt(i)!.subtasks[index].task = subString;
+                        }
+                      });
+                    },
+                    updateSubtask: (isDone, index) {
+                      setState(() {
+                        box.getAt(i)!.subtasks[index].isDone = isDone;
+                        box.getAt(i)!.isDone = box.getAt(i)!.areAllSubtasksDone;
+                      });
+                    },
+                    addSubtask: () async {
+                      final taskString = await addTask(context);
+                      setState(() {
+                        if (taskString != null) {
+                          box.getAt(i)!.isDone = false;
+                          box.getAt(i)!.subtasks.add(Task(taskString));
+                        }
+                      });
+                    },
+                    //time
+                    launchTimer: () {
+                      final t = box.getAt(i)!;
+
+                      if (t.timerState == null) {
+                        t.timerState = TimerState.stopped;
+                        t.elapsed = 0;
+                        t.startedAt = null;
+                        t.save();
                       }
-                    } else if (!_tasks[i].isDone) {
-                      for (Task sub in _tasks[i].subtasks) {
-                        sub.isDone = false;
-                      }
-                    }
-                  });
-                },
-                editTask: () async {
-                  final taskString = await editTask(context, _tasks[i]);
-                  setState(() {
-                    if (taskString != null) {
-                      _tasks[i].task = taskString;
-                    }
-                  });
-                },
-                removeTask: () {
-                  setState(() => _tasks.removeAt(i));
-                },
-                //subs
-                removeSub: (index) {
-                  setState(() {
-                    _tasks[i].subtasks.removeAt(index);
-                    _tasks[i].isDone = _tasks[i].areAllSubtasksDone;
-                  });
-                },
-                editSub: (index) async {
-                  final subString = await editTask(context, _tasks[i].subtasks[index]);
-                  setState(() {
-                    if (subString != null) {
-                      _tasks[i].subtasks[index].task = subString;
-                    }
-                  });
-                },
-                updateSubtask: (isDone, index) {
-                  setState(() {
-                    _tasks[i].subtasks[index].isDone = isDone;
-                    _tasks[i].isDone = _tasks[i].areAllSubtasksDone;
-                  });
-                },
-                addSubtask: () async {
-                  final taskString = await addTask(context);
-                  setState(() {
-                    if (taskString != null) {
-                      _tasks[i].isDone = false;
-                      _tasks[i].subtasks.add(Task(taskString));
-                    }
-                  });
-                },
-                //time
-                launchTimer: () {
-                  setState(() {
-                    _tasks[i].timer = TaskTimer(
-                      onDelete: () {
+                    },
+                    //lastly
+                    deleteDeadline: () {
+                      setState(() {
+                        box.getAt(i)!.deadline = null;
+                        box.getAt(i)!.hasTime = false;
+                      });
+                    },
+
+                    setDeadline: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1992),
+                        lastDate: DateTime(2125),
+                      );
+                      if (date == null) return;
+                      final time = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                        cancelText: "Don't set time",
+                      );
+                      if (!context.mounted) return;
+
+                      if (time == null) {
                         setState(() {
-                          _tasks[i].timer = null;
+                          box.getAt(i)!.deadline = DateTime(date.year, date.month, date.day);
+                          box.getAt(i)!.hasTime = false;
+                        });
+                      } else {
+                        setState(() {
+                          box.getAt(i)!.deadline = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                          box.getAt(i)!.hasTime = true;
                         });
                       }
-                    );
-                  });
-                },
-                //lastly
-                deleteDeadline: () {
-                  setState(() {
-                    _tasks[i].deadline = null;
-                    _tasks[i].hasTime = false;
-                  });
-                },
-
-                setDeadline: () async {
-                  final date = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(1992),
-                    lastDate: DateTime(2125),
+                    },
                   );
-                  if (date == null) return;
-                  final time = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.now(),
-                    cancelText: "Don't set time",
-                  );
-                  if (!context.mounted) return;
-
-                  if (time == null) {
-                    setState(() {
-                      _tasks[i].deadline = DateTime(date.year, date.month, date.day);
-                      _tasks[i].hasTime = false;
-                    });
-                  } else {
-                    setState(() {
-                      _tasks[i].deadline = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-                      _tasks[i].hasTime = true;
-                    });
-                  }
                 },
               );
-            },
+            }
           );
         }
       ),
@@ -196,7 +204,7 @@ class _HomePageState extends State<HomePage> {
             if (!mounted) return;
             if (taskString != null && taskString.trim().isNotEmpty) {
               setState(() {
-                _tasks.add(Task(taskString));
+                box.add(Task(taskString));
               });
             }
           },

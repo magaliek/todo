@@ -83,84 +83,96 @@ class _HomePageState extends State<HomePage> {
                 itemCount: box.length,
                 itemBuilder: (context, i) {
                   return TaskTile(
-                    task: box.getAt(i)!,
+                    task: tasks[i],
                     toggleE: () {
                       setState(() {
-                        box.getAt(i)!.expanded = !box.getAt(i)!.expanded;
+                        tasks[i].expanded = !tasks[i].expanded;
+                        tasks[i].save();
                       });
                     },
                     //tasks
                     toggle: () {
                       setState(() {
-                        box.getAt(i)!.isDone = !box.getAt(i)!.isDone;
-                        if (box.getAt(i)!.isDone) {
-                          for (Task sub in box.getAt(i)!.subtasks) {
+                        tasks[i].isDone = !tasks[i].isDone;
+                        tasks[i].save();
+                        if (tasks[i].isDone) {
+                          for (Task sub in tasks[i].subtasks) {
                             sub.isDone = true;
+                            tasks[i].save();
                           }
-                        } else if (!box.getAt(i)!.isDone) {
-                          for (Task sub in box.getAt(i)!.subtasks) {
+                        } else if (!tasks[i].isDone) {
+                          for (Task sub in tasks[i].subtasks) {
                             sub.isDone = false;
+                            tasks[i].save();
                           }
                         }
                       });
                     },
                     editTask: () async {
-                      final taskString = await editTask(context, box.getAt(i)!);
+                      final taskString = await editTask(context, tasks[i]);
                       setState(() {
                         if (taskString != null) {
-                          box.getAt(i)!.task = taskString;
+                          tasks[i].task = taskString;
+                          tasks[i].save();
                         }
                       });
                     },
-                    removeTask: () {
-                      setState(() => box.deleteAt(i));
+                    removeTask: () async {
+                      await box.deleteAt(i);
                     },
                     //subs
                     removeSub: (index) {
                       setState(() {
-                        box.getAt(i)!.subtasks.removeAt(index);
-                        box.getAt(i)!.isDone = box.getAt(i)!.areAllSubtasksDone;
+                        tasks[i].subtasks.removeAt(index);
+                        tasks[i].isDone = tasks[i].areAllSubtasksDone;
+                        tasks[i].save();
                       });
                     },
                     editSub: (index) async {
-                      final subString = await editTask(context, box.getAt(i)!.subtasks[index]);
+                      final subString = await editTask(context, tasks[i].subtasks[index]);
                       setState(() {
                         if (subString != null) {
-                          box.getAt(i)!.subtasks[index].task = subString;
+                          tasks[i].subtasks[index].task = subString;
+                          tasks[i].save();
                         }
                       });
                     },
                     updateSubtask: (isDone, index) {
                       setState(() {
-                        box.getAt(i)!.subtasks[index].isDone = isDone;
-                        box.getAt(i)!.isDone = box.getAt(i)!.areAllSubtasksDone;
+                        tasks[i].subtasks[index].isDone = isDone;
+                        tasks[i].isDone = tasks[i].areAllSubtasksDone;
+                        tasks[i].save();
                       });
                     },
                     addSubtask: () async {
                       final taskString = await addTask(context);
                       setState(() {
                         if (taskString != null) {
-                          box.getAt(i)!.isDone = false;
-                          box.getAt(i)!.subtasks.add(Task(taskString));
+                          tasks[i].isDone = false;
+                          tasks[i].subtasks.add(Task(taskString));
+                          tasks[i].save();
                         }
                       });
                     },
                     //time
                     launchTimer: () {
-                      final t = box.getAt(i)!;
-
+                      final t = tasks[i];
                       if (t.timerState == null) {
                         t.timerState = TimerState.stopped;
                         t.elapsed = 0;
                         t.startedAt = null;
+                        // Persist AND notify listeners:
+                        box.putAt(i, t); // <- guarantees ValueListenableBuilder fires
                         t.save();
+                        setState(() {}); // <- ensures immediate rebuild on device too
                       }
                     },
                     //lastly
                     deleteDeadline: () {
                       setState(() {
-                        box.getAt(i)!.deadline = null;
-                        box.getAt(i)!.hasTime = false;
+                        tasks[i].deadline = null;
+                        tasks[i].hasTime = false;
+                        tasks[i].save();
                       });
                     },
 
@@ -181,13 +193,15 @@ class _HomePageState extends State<HomePage> {
 
                       if (time == null) {
                         setState(() {
-                          box.getAt(i)!.deadline = DateTime(date.year, date.month, date.day);
-                          box.getAt(i)!.hasTime = false;
+                          tasks[i].deadline = DateTime(date.year, date.month, date.day);
+                          tasks[i].hasTime = false;
+                          tasks[i].save();
                         });
                       } else {
                         setState(() {
-                          box.getAt(i)!.deadline = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-                          box.getAt(i)!.hasTime = true;
+                          tasks[i].deadline = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                          tasks[i].hasTime = true;
+                          tasks[i].save();
                         });
                       }
                     },

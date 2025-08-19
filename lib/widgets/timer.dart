@@ -4,7 +4,6 @@ import 'package:todo/models/app_settings.dart';
 import 'package:provider/provider.dart';
 import 'package:todo/models/task.dart';
 import 'package:todo/enum/TaskState.dart';
-import '../notifs/ios_live_activity.dart';
 
 
 class TaskTimer extends StatefulWidget {
@@ -65,12 +64,6 @@ class _TaskTimerState extends State<TaskTimer> {
     t.startedAt = DateTime.now();
     t.timerState = TimerState.running;
     t.save();
-
-    IosLiveActivity.startTimerActivity(
-      taskId: t.id,
-      title: t.task,
-      elapsed: t.elapsed,
-    );
   }
 
   void _pause() {
@@ -80,13 +73,6 @@ class _TaskTimerState extends State<TaskTimer> {
     t.startedAt = null;
     t.timerState = TimerState.paused;
     t.save();
-
-    IosLiveActivity.updateTimerActivity(
-      taskId: t.id,
-      elapsed: t.elapsed,
-      isRunning: false,
-      startedAt: null,
-    );
   }
 
   void _stop() {
@@ -95,8 +81,6 @@ class _TaskTimerState extends State<TaskTimer> {
     t.elapsed = 0;
     t.timerState = TimerState.stopped;
     t.save();
-
-    IosLiveActivity.endTimerActivity();
   }
 
   void deleteTimer() {

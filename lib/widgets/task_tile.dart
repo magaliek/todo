@@ -117,58 +117,21 @@ class TaskTile extends StatelessWidget {
               children: [
                 PopupMenuButton<int>(
                   icon: Icon(Icons.more_vert, color: settings.foregroundColor,),
-                  onSelected: (value) {
-                    if (value == 0) {}
-                    else if (value == 1) {}
-                    else if (value == 2) {}
-                    else if (value == 3) {}
-                    else if (value == 4) {}
+                  onSelected: (v) {
+                    switch (v) {
+                      case 0: editTask();
+                      case 1: addSubtask();
+                      case 2: launchTimer();
+                      case 3: setDeadline();
+                      case 4: deleteDeadline();
+                    }
                   },
                   itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 0,
-                      child: TextButton.icon(
-                        icon: Icon(Icons.edit_outlined, color: settings.foregroundColor),
-                        onPressed: editTask,
-                        label: Text("Edit task"),
-                      ),
-                    ),
-
-                    PopupMenuItem(
-                      value: 1,
-                      child: TextButton.icon(
-                        onPressed: addSubtask,
-                        icon: Icon(Icons.add, color: settings.foregroundColor),
-                        label: Text("Add subtask"),
-                      ),
-                    ),
-
-                    PopupMenuItem(
-                      value: 2,
-                      child: TextButton.icon(
-                        onPressed: launchTimer,
-                        icon: Icon(Icons.timer_rounded, color: settings.foregroundColor),
-                        label: Text("Add timer"),
-                      ),
-                    ),
-
-                    PopupMenuItem(
-                      value: 3,
-                      child: TextButton.icon(
-                        onPressed: setDeadline,
-                        icon: Icon(Icons.calendar_month_rounded, color: settings.foregroundColor),
-                        label: Text("Set deadline"),
-                      ),
-                    ),
-
-                    PopupMenuItem(
-                      value: 4,
-                      child: TextButton.icon(
-                        onPressed: deleteDeadline,
-                        icon: Icon(Icons.auto_delete_rounded, color: settings.foregroundColor),
-                        label: Text("Delete deadline"),
-                      ),
-                    )
+                    PopupMenuItem(value: 0, child: ListTile(leading: Icon(Icons.edit_outlined,), title: Text("Edit task"))),
+                    PopupMenuItem(value: 1, child: ListTile(leading: Icon(Icons.add), title: Text("Add subtask"))),
+                    PopupMenuItem(value: 2, child: ListTile(leading: Icon(Icons.timer_rounded), title: Text("Add timer"))),
+                    PopupMenuItem(value: 3, child: ListTile(leading: Icon(Icons.calendar_month_rounded), title: Text("Set deadline"))),
+                    PopupMenuItem(value: 4, child: ListTile(leading: Icon(Icons.auto_delete_rounded), title: Text("Delete deadline"))),
                   ],
                 ),
               ],

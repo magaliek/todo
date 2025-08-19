@@ -22,6 +22,7 @@ Future<void> main() async {
   Hive.registerAdapter(TimerStateAdapter());
   await Hive.openBox<Task>('taskBox');
 
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => settings,

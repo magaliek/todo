@@ -267,14 +267,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_app_group_directory:
-    dependency: transitive
-    description:
-      name: flutter_app_group_directory
-      sha256: "680ef9b2dee84c237cd7bb7fc78bc45867b32556a8a5f0de61278078b9fefd05"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
   flutter_colorpicker:
     dependency: "direct main"
     description:
@@ -533,14 +525,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.1"
-  live_activities:
-    dependency: "direct main"
-    description:
-      name: live_activities
-      sha256: f539d1b3458baa87333b16d2e7c90710d1131ba975a6dc21cdad28974bf16408
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.1"
   logging:
     dependency: transitive
     description:

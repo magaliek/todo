@@ -19,20 +19,21 @@ class TaskAdapter extends TypeAdapter<Task> {
     return Task(
       fields[0] as String,
       isDone: fields[1] as bool,
-      subtasks: (fields[2] as List?)?.cast<Task>(),
+      subtasks: (fields[2] as HiveList?)?.castHiveList(),
       expanded: fields[3] as bool,
       deadline: fields[4] as DateTime?,
       hasTime: fields[5] as bool,
       timerState: fields[6] as TimerState?,
       startedAt: fields[7] as DateTime?,
       elapsed: fields[8] as int,
+      id: fields[9] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Task obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.task)
       ..writeByte(1)
@@ -50,7 +51,9 @@ class TaskAdapter extends TypeAdapter<Task> {
       ..writeByte(7)
       ..write(obj.startedAt)
       ..writeByte(8)
-      ..write(obj.elapsed);
+      ..write(obj.elapsed)
+      ..writeByte(9)
+      ..write(obj.id);
   }
 
   @override

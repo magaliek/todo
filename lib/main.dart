@@ -21,6 +21,7 @@ Future<void> main() async {
   Hive.registerAdapter(TaskAdapter());
   Hive.registerAdapter(TimerStateAdapter());
   await Hive.openBox<Task>('taskBox');
+  await Hive.openBox<Task>('subtaskBox');
 
 
   runApp(

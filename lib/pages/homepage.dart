@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:todo/enum/TaskState.dart';
 import 'package:todo/models/app_settings.dart';
@@ -11,7 +10,6 @@ import '/dialogs/add_task_dialog.dart';
 import '/dialogs/edit_task_dialog.dart';
 import '/widgets/task_tile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:todo/widgets/timer.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -25,7 +23,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool _tipInserted = false;
-  final box = Hive.box<Task>('taskBox');
+  final taskBox = Hive.box<Task>('taskBox');
+  final subtaskBox = Hive.box<Task>('subtaskBox');
 
   @override
   void initState() {
@@ -36,7 +35,7 @@ class _HomePageState extends State<HomePage> {
 
   void _maybeInsertTip() {
     if (!_tipInserted && widget.isFirstRun) {
-      box.add(Task("💡 Tip: Swipe left to delete"));
+      taskBox.add(Task("💡 Tip: Swipe left to delete", subtaskBox: subtaskBox));
       widget.prefs.setBool('has_run_before', true);
       _tipInserted = true;
     }
@@ -76,38 +75,34 @@ class _HomePageState extends State<HomePage> {
       Consumer<AppSettings>(
         builder: (context, settings, child) {
           return ValueListenableBuilder(
-            valueListenable: box.listenable(),
+            valueListenable: taskBox.listenable(),
             builder: (_, Box<Task> b, __) {
               final tasks = b.values.toList(growable: false);
               return ListView.builder(
-                itemCount: box.length,
+                itemCount: tasks.length,
                 itemBuilder: (context, i) {
                   return TaskTile(
                     task: tasks[i],
-                    toggleE: () {
+                    refresh: () => setState(() {}),
+                    //tasks
+                    toggleE: (expanded) {
                       setState(() {
-                        tasks[i].expanded = !tasks[i].expanded;
+                        tasks[i].expanded = expanded;
                         tasks[i].save();
                       });
                     },
-                    //tasks
+
                     toggle: () {
                       setState(() {
                         tasks[i].isDone = !tasks[i].isDone;
                         tasks[i].save();
-                        if (tasks[i].isDone) {
-                          for (Task sub in tasks[i].subtasks) {
-                            sub.isDone = true;
-                            tasks[i].save();
-                          }
-                        } else if (!tasks[i].isDone) {
-                          for (Task sub in tasks[i].subtasks) {
-                            sub.isDone = false;
-                            tasks[i].save();
-                          }
+                        for (Task sub in tasks[i].subtasks) {
+                          sub.isDone = tasks[i].isDone;
+                          sub.save();
                         }
                       });
                     },
+                    
                     editTask: () async {
                       final taskString = await editTask(context, tasks[i]);
                       setState(() {
@@ -117,57 +112,124 @@ class _HomePageState extends State<HomePage> {
                         }
                       });
                     },
+                    
                     removeTask: () async {
-                      await box.deleteAt(i);
+                      await taskBox.deleteAt(i);
                     },
+                    
                     //subs
-                    removeSub: (index) {
+                    toggleES: (index, expanded) {
                       setState(() {
-                        tasks[i].subtasks.removeAt(index);
-                        tasks[i].isDone = tasks[i].areAllSubtasksDone;
-                        tasks[i].save();
+                        tasks[i].subtasks[index].expanded = expanded;
+                        tasks[i].subtasks[index].save();
                       });
                     },
+                    
+                    removeSub: (index) {
+                      final parent = tasks[i];
+                      final sub = parent.subtasks[index];
+                      setState(() {
+                        parent.subtasks.removeAt(index);
+                        parent.isDone = parent.areAllSubtasksDone;
+                      });
+                      parent.save();
+                      sub.delete();
+                    },
+                    
                     editSub: (index) async {
                       final subString = await editTask(context, tasks[i].subtasks[index]);
                       setState(() {
                         if (subString != null) {
                           tasks[i].subtasks[index].task = subString;
-                          tasks[i].save();
+                          tasks[i].subtasks[index].save();
                         }
                       });
                     },
+                    
                     updateSubtask: (isDone, index) {
                       setState(() {
                         tasks[i].subtasks[index].isDone = isDone;
                         tasks[i].isDone = tasks[i].areAllSubtasksDone;
                         tasks[i].save();
+                        tasks[i].subtasks[index].save();
                       });
                     },
+                    
                     addSubtask: () async {
                       final taskString = await addTask(context);
                       setState(() {
                         if (taskString != null) {
+                          final newSub = Task(taskString, subtaskBox: subtaskBox);
                           tasks[i].isDone = false;
-                          tasks[i].subtasks.add(Task(taskString));
+                          subtaskBox.add(newSub);
+                          tasks[i].subtasks.add(newSub);
                           tasks[i].save();
                         }
                       });
                     },
+
                     //time
+                    launchTimerS: (index) {
+                      final s = tasks[i].subtasks[index];
+                      if (s.timerState == null) {
+                        s.timerState = TimerState.stopped;
+                        s.elapsed = 0;
+                        s.startedAt = null;
+                        s.save();
+                        setState(() {});
+                      }
+                    },
+                    
+                    setDeadlineS: (index) async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1992),
+                        lastDate: DateTime(2125),
+                      );
+                      if (date == null) return;
+                      final time = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                        cancelText: "Don't set time",
+                      );
+                      if (!context.mounted) return;
+                      final sub = tasks[i].subtasks[index];
+                      if (time == null) {
+                        setState(() {
+                          sub.deadline = DateTime(date.year, date.month, date.day);
+                          sub.hasTime = false;
+                          sub.save();
+                        });
+                      } else {
+                        setState(() {
+                          sub.deadline = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                          sub.hasTime = true;
+                          sub.save();
+                        });
+                      }
+                    },
+                    
+                    deleteDeadlineS: (index) {
+                      final sub = tasks[i].subtasks[index];
+                      setState(() {
+                        sub.deadline = null;
+                        sub.hasTime = false;
+                        sub.save();
+                      });
+                    },
+
                     launchTimer: () {
                       final t = tasks[i];
                       if (t.timerState == null) {
                         t.timerState = TimerState.stopped;
                         t.elapsed = 0;
                         t.startedAt = null;
-                        // Persist AND notify listeners:
-                        box.putAt(i, t); // <- guarantees ValueListenableBuilder fires
                         t.save();
-                        setState(() {}); // <- ensures immediate rebuild on device too
+                        setState(() {});
                       }
                     },
-                    //lastly
+                    
                     deleteDeadline: () {
                       setState(() {
                         tasks[i].deadline = null;
@@ -218,7 +280,7 @@ class _HomePageState extends State<HomePage> {
             if (!mounted) return;
             if (taskString != null && taskString.trim().isNotEmpty) {
               setState(() {
-                box.add(Task(taskString));
+                taskBox.add(Task(taskString, subtaskBox: subtaskBox));
               });
             }
           },

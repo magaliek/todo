@@ -9,22 +9,29 @@ import '/widgets/timer.dart';
 class TaskTile extends StatelessWidget {
   final Task task;
   final VoidCallback toggle;
-  final VoidCallback toggleE;
+  final void Function(bool expanded) toggleE;
+  final void Function(int i, bool expanded) toggleES;
   final VoidCallback editTask;
   final VoidCallback addSubtask;
   final VoidCallback removeTask;
-  final VoidCallback launchTimer; //?
-  final VoidCallback setDeadline; //?
+  final VoidCallback launchTimer;
+  final VoidCallback setDeadline;
   final VoidCallback deleteDeadline;
+  final void Function(int index) launchTimerS;
+  final void Function(int index) setDeadlineS;
+  final void Function(int index) deleteDeadlineS;
   final void Function(int index) removeSub;
   final void Function(int index) editSub;
   final void Function(bool isDone, int index) updateSubtask;
+  final VoidCallback refresh;
 
   const TaskTile({
     super.key,
+    required this.refresh,
     required this.task,
     required this.toggle,
     required this.toggleE,
+    required this.toggleES,
     required this.editTask,
     required this.editSub,
     required this.removeSub,
@@ -34,6 +41,9 @@ class TaskTile extends StatelessWidget {
     required this.setDeadline,
     required this.deleteDeadline,
     required this.updateSubtask,
+    required this.deleteDeadlineS,
+    required this.launchTimerS,
+    required this.setDeadlineS,
 });
 
 
@@ -45,7 +55,7 @@ class TaskTile extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Dismissible(
-          key: ValueKey(task),
+          key: ValueKey('task-${task.id}'),
           onDismissed: (_) => removeTask(),
           direction: DismissDirection.endToStart,
           background: Container(
@@ -65,10 +75,10 @@ class TaskTile extends StatelessWidget {
                 color: Colors.white),
           ),
           child: ExpansionTile(
-            key: ValueKey(task),
+            key: PageStorageKey('tile-${task.id}'),
             tilePadding: EdgeInsets.symmetric(horizontal: 0),
             initiallyExpanded: task.expanded,
-            onExpansionChanged: (_) => toggleE(),
+            onExpansionChanged: (expanded) => toggleE(expanded),
             maintainState: true,
             subtitle: (task.deadline != null)
                         ? Text(
@@ -146,14 +156,14 @@ class TaskTile extends StatelessWidget {
                     task.elapsed = 0;
                     task.timerState = null;
                     task.save();
+                    refresh();
                   },
                 ),
 //come back here
-              Column(
-                children: List.generate(task.subtasks.length, (i) {
+                ...List.generate(task.subtasks.length, (i) {
                   final sub = task.subtasks[i];
                   return Dismissible(
-                    key: ValueKey(sub),
+                    key: ValueKey('sub-${sub.id}'),
                     onDismissed: (_) => removeSub(i),
                     direction: DismissDirection.endToStart,
                     background: Container(
@@ -172,12 +182,37 @@ class TaskTile extends StatelessWidget {
                       child: Icon(Icons.delete_outline,
                           color: Colors.white),
                     ),
-                    child: ListTile(
-                      leading: Checkbox(
-                        value: sub.isDone,
-                        activeColor: settings.foregroundColor,
-                        onChanged: (value) => updateSubtask(value ?? false, i),
+                    child: ExpansionTile(
+                      key: PageStorageKey('tile-sub-${sub.id}'),
+                      tilePadding: EdgeInsets.symmetric(horizontal: 8.0),
+                      initiallyExpanded: sub.expanded,
+                      onExpansionChanged: (expanded) => toggleES(i, expanded),
+                      maintainState: true,
+                      subtitle: (sub.deadline != null)
+                          ? Text(
+                        sub.hasTime
+                            ? DateFormat('dd.MM.yyyy HH.mm').format(sub.deadline!)
+                            : DateFormat('dd.MM.yyyy').format(sub.deadline!),
+                        style: TextStyle(fontSize: 10, color: settings.foregroundColor),) : null,
+
+                      leading: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Checkbox(
+                            value: sub.isDone,
+                            activeColor: settings.foregroundColor,
+                            onChanged: (value) => updateSubtask(value ?? false, i),
+                          ),
+                          if (sub.timerState != null)
+                            Icon(
+                              sub.expanded
+                                  ? Icons.keyboard_arrow_down_rounded
+                                  : Icons.keyboard_arrow_right_rounded,
+                              color: settings.foregroundColor,
+                            ),
+                        ],
                       ),
+
                       title: Text(
                         sub.task,
                         style: GoogleFonts.getFont(
@@ -191,20 +226,46 @@ class TaskTile extends StatelessWidget {
                               : settings.taskTextColor,
                         ),
                       ),
+                      //come back here fr
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          IconButton(
-                            icon: Icon(Icons.edit_outlined),
-                            onPressed: () => editSub(i),
-                            color: settings.foregroundColor,
+                          PopupMenuButton<int>(
+                            icon: Icon(Icons.more_vert, color: settings.foregroundColor,),
+                            onSelected: (v) {
+                              switch (v) {
+                                case 0: editSub(i);
+                                case 2: launchTimerS(i);
+                                case 3: setDeadlineS(i);
+                                case 4: deleteDeadlineS(i);
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              PopupMenuItem(value: 0, child: ListTile(leading: Icon(Icons.edit_outlined,), title: Text("Edit subtask"))),
+                              PopupMenuItem(value: 2, child: ListTile(leading: Icon(Icons.timer_rounded), title: Text("Add timer"))),
+                              PopupMenuItem(value: 3, child: ListTile(leading: Icon(Icons.calendar_month_rounded), title: Text("Set deadline"))),
+                              PopupMenuItem(value: 4, child: ListTile(leading: Icon(Icons.auto_delete_rounded), title: Text("Delete deadline"))),
+                            ],
                           ),
                         ],
                       ),
+
+                      children: [
+                        if (sub.timerState != null)
+                          TaskTimer(
+                            task: sub,
+                            onDelete: () {
+                              sub.startedAt = null;
+                              sub.elapsed = 0;
+                              sub.timerState = null;
+                              sub.save();
+                              refresh();
+                            },
+                          ),
+                      ],
                     ),
                   );
                 }),
-              ),
             ],
           ),
         ),

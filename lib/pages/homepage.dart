@@ -46,6 +46,7 @@ class _HomePageState extends State<HomePage> {
     return CustomScaffold(
       appBar: AppBar(
         title: const Text('tasks'),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.settings),

@@ -135,6 +135,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return CustomScaffold(
       appBar: AppBar(
         title: const Text('Settings'),
+        centerTitle: true,
         leading: IconButton(
             onPressed: () {
               Navigator.pop(context);

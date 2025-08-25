@@ -20,6 +20,8 @@ ios/Flutter/ephemeral/
 .gradle/
 **/local.properties
 **/captures/
+android/upload-keystore.jks
+android/key.properties
 
 # IDE
 .idea/

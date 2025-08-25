@@ -5,7 +5,7 @@ class AppSettings extends ChangeNotifier {
   final SharedPreferences prefs;
   AppSettings(this.prefs);
 
-  Color backgroundColor = Colors.white;
+  Color backgroundColor = Color(0xFF5D0A0A);
   String backgroundImagePath = "";
   String taskFont = "Montserrat";
   double taskTextSize = 16;

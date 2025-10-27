@@ -33,7 +33,7 @@ class Task extends HiveObject {
     this.subtasks = subtasks ?? HiveList<Task>(subtaskBox ?? Hive.box<Task>('subtaskBox'),);
   }
 
-  Task copyWith({
+/*  Task copyWith({
     String? task,
     bool? isDone,
     HiveList<Task>? subtasks,
@@ -59,7 +59,7 @@ class Task extends HiveObject {
       id: id ?? this.id,
       subtaskBox: list.box as Box<Task>,
     );
-  }
+  }*/
 
   bool get areAllSubtasksDone =>
       subtasks.isNotEmpty && subtasks.every((t) => t.isDone);

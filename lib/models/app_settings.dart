@@ -18,7 +18,7 @@ class AppSettings extends ChangeNotifier {
   static Future<AppSettings> load(SharedPreferences prefs) async {
     final s = AppSettings(prefs);
     s.backgroundColor =
-        Color(prefs.getInt('bgColor') ?? Colors.white.value);
+        Color(prefs.getInt('bgColor') ?? s.backgroundColor.value);
     s.backgroundImagePath =
         prefs.getString('bgImagePath') ?? "";
     s.taskFont = prefs.getString('taskFont') ?? "Montserrat";

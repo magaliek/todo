@@ -1,19 +1,47 @@
-# todo
+A fully customizable Flutter to-do list app with timers, subtasks, and deep personalization.
+Track what matters, time your progress, and make it look exactly how you want.
 
-A new Flutter project.
+✨ Features
 
-## Getting Started
+✅ Tasks & Subtasks
 
-This project is a starting point for a Flutter application.
+Create tasks with optional nested subtasks
 
-A few resources to get you started if this is your first Flutter project:
+Set deadlines for both tasks and subtasks
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Edit, delete, or mark them complete anytime
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+⏱ Built-in Timer
+
+Each task can have its own timer for focused sessions
+
+Track time spent directly from the task view
+
+🎨 Full Customization
+
+Change background, theme color, font family, font size, and text color
+
+Saves your preferred layout
+
+🧹 Gestures & UI
+
+Swipe to delete or complete tasks
+
+📅 Deadlines & Reminders
+
+Assign due dates that can include precise deadline (with time)
 
 
+
+🧠 Tech Stack
+
+Flutter (Dart) — UI and logic
+
+Hive — lightweight local storage
+
+Provider — state management
+
+Flutter ColorPicker — theme customization
+
+Flutter Material Widgets — for UI components
 
